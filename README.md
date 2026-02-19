@@ -32,6 +32,12 @@ Set AppID/AppSecret:
 wxcli auth set --appid YOUR_APPID --appsecret YOUR_SECRET
 ```
 
+Interactive login:
+
+```bash
+wxcli auth login
+```
+
 Check status:
 
 ```bash
