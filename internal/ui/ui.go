@@ -133,3 +133,30 @@ func FromContext(ctx context.Context) *UI {
 	u, _ := v.(*UI)
 	return u
 }
+
+func Prompt(ctx context.Context, label string) (string, error) {
+	u := FromContext(ctx)
+	if u == nil {
+		return "", fmt.Errorf("ui not initialized")
+	}
+	u.Err().Print(label + ": ")
+	var input string
+	_, err := fmt.Fscanln(os.Stdin, &input)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(input), nil
+}
+
+func PromptSecret(ctx context.Context, label string) (string, error) {
+	u := FromContext(ctx)
+	if u == nil {
+		return "", fmt.Errorf("ui not initialized")
+	}
+	u.Err().Print(label + ": ")
+	b, err := readPassword()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(string(b)), nil
+}

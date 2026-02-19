@@ -15,6 +15,7 @@ import (
 
 type AuthCmd struct {
 	Set     AuthSetCmd     `cmd:"" name:"set" help:"Set AppID/AppSecret"`
+	Login   AuthLoginCmd   `cmd:"" name:"login" help:"Prompt for AppID/AppSecret"`
 	Status  AuthStatusCmd  `cmd:"" name:"status" help:"Show auth status"`
 	Clear   AuthClearCmd   `cmd:"" name:"clear" help:"Clear stored secrets"`
 	Keyring AuthKeyringCmd `cmd:"" name:"keyring" help:"Show/set keyring backend"`
@@ -28,6 +29,10 @@ type AuthSetCmd struct {
 	AppID     string `name:"appid" help:"Weixin AppID" required:""`
 	AppSecret string `name:"appsecret" help:"Weixin AppSecret" required:""`
 	Name      string `name:"name" help:"Optional label"`
+}
+
+type AuthLoginCmd struct {
+	Name string `name:"name" help:"Optional label"`
 }
 
 func (c *AuthSetCmd) Run(ctx context.Context, flags *RootFlags) error {
@@ -56,6 +61,22 @@ func (c *AuthSetCmd) Run(ctx context.Context, flags *RootFlags) error {
 	}
 	u.Out().Printf("stored\ttrue")
 	return nil
+}
+
+func (c *AuthLoginCmd) Run(ctx context.Context, flags *RootFlags) error {
+	if flags != nil && flags.NoInput {
+		return usage("--no-input cannot be used with auth login")
+	}
+	appID, err := ui.Prompt(ctx, "AppID")
+	if err != nil {
+		return err
+	}
+	appSecret, err := ui.PromptSecret(ctx, "AppSecret")
+	if err != nil {
+		return err
+	}
+	cmd := AuthSetCmd{AppID: appID, AppSecret: appSecret, Name: c.Name}
+	return cmd.Run(ctx, flags)
 }
 
 type AuthStatusCmd struct{}
