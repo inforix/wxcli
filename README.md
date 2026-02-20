@@ -90,6 +90,13 @@ Add a draft:
 wxcli draft add --title "Hello" --content "<p>Hi</p>" --thumb-media-id MEDIA_ID
 ```
 
+Read HTML content from stdin:
+
+```bash
+npx markdown-to-html-cli --source article.md --style=./style.css | \
+  wxcli draft add --title "Hello" --content - --thumb-media-id MEDIA_ID
+```
+
 Get a draft:
 
 ```bash

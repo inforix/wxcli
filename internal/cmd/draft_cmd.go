@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
+	"os"
 
 	"github.com/99designs/keyring"
 
@@ -16,11 +18,20 @@ import (
 
 type DraftAddCmd struct {
 	Title        string `name:"title" help:"Article title" required:""`
-	Content      string `name:"content" help:"Article content (HTML)" required:""`
+	Content      string `name:"content" help:"Article content (HTML); use '-' to read from stdin" required:""`
 	ThumbMediaID string `name:"thumb-media-id" help:"Thumb media ID" required:""`
 }
 
 func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
+	content := c.Content
+	if content == "-" {
+		stdinContent, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+		content = string(stdinContent)
+	}
+
 	appID, err := auth.RequireAppID()
 	if err != nil {
 		return err
@@ -41,7 +52,7 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	resp, err := client.Add(ctx, accessToken, draft.AddDraftRequest{
 		Articles: []draft.DraftArticle{{
 			Title:        c.Title,
-			Content:      c.Content,
+			Content:      content,
 			ThumbMediaID: c.ThumbMediaID,
 		}},
 	})

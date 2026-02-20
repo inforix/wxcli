@@ -75,7 +75,10 @@ account article (plain text or Markdown) and submit it as a draft.
    - Ask: "Proceed to create Weixin draft with wxcli?"
 
 7. Submit via wxcli.
-   - `wxcli draft add --title "<title>" --content "<html>" --thumb-media-id <thumb_media_id>`
+   - Direct content:
+     `wxcli draft add --title "<title>" --content "<html>" --thumb-media-id <thumb_media_id>`
+   - From pipeline:
+     `npx markdown-to-html-cli --source <SOURCE.md> --style=./style.css | wxcli draft add --title "<title>" --content - --thumb-media-id <thumb_media_id>`
    - Return output to the user.
 
 ---
