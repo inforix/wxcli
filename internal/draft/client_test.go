@@ -3,13 +3,26 @@ package draft
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 )
 
 func TestAddDraft(t *testing.T) {
-	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if ct := r.Header.Get("Content-Type"); ct != "application/json; charset=utf-8" {
+			t.Fatalf("unexpected content-type: %q", ct)
+		}
+		body, err := io.ReadAll(r.Body)
+		if err != nil {
+			t.Fatalf("read body: %v", err)
+		}
+		got := string(body)
+		if strings.Contains(got, "\\u4f60") || strings.Contains(got, "\\u597d") {
+			t.Fatalf("expected utf-8 body, got escaped unicode: %s", got)
+		}
 		_ = json.NewEncoder(w).Encode(map[string]any{"media_id": "mid"})
 	}))
 	defer srv.Close()
@@ -17,7 +30,12 @@ func TestAddDraft(t *testing.T) {
 	client := NewClient(srv.Client())
 	client.BaseURL = srv.URL
 
-	resp, err := client.Add(context.Background(), "token", AddDraftRequest{Articles: []DraftArticle{{Title: "t"}}})
+	resp, err := client.Add(context.Background(), "token", AddDraftRequest{
+		Articles: []DraftArticle{{
+			Title:   "t",
+			Content: "<p>你好</p>",
+		}},
+	})
 	if err != nil {
 		t.Fatalf("add: %v", err)
 	}

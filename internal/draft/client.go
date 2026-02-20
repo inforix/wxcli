@@ -148,15 +148,17 @@ func (c *Client) post(ctx context.Context, accessToken, path string, body any, o
 	}
 	endpoint += "?access_token=" + url.QueryEscape(accessToken)
 
-	buf, err := json.Marshal(body)
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	enc.SetEscapeHTML(false)
+	if err := enc.Encode(body); err != nil {
+		return err
+	}
+	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, &buf)
 	if err != nil {
 		return err
 	}
-	req, err := http.NewRequestWithContext(ctx, http.MethodPost, endpoint, bytes.NewReader(buf))
-	if err != nil {
-		return err
-	}
-	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Content-Type", "application/json; charset=utf-8")
 
 	resp, err := c.HTTP.Do(req)
 	if err != nil {
