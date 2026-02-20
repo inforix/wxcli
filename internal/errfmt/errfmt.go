@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"regexp"
+	"runtime"
 
 	"github.com/99designs/keyring"
 	"github.com/alecthomas/kong"
@@ -30,6 +31,9 @@ func Format(err error) string {
 		return parseErr.Error()
 	}
 	if errors.Is(err, keyring.ErrKeyNotFound) {
+		if runtime.GOOS == "linux" {
+			return "Secret not found in config. Run: wxcli auth set --appid <id> --appsecret <secret>"
+		}
 		return "Secret not found in keyring. Run: wxcli auth set --appid <id> --appsecret <secret>"
 	}
 	var apiErr *APIError

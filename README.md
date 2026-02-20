@@ -5,10 +5,10 @@ Weixin draftbox CLI for subscription accounts. Manages auth, access_token cachin
 ## Features
 
 - Draftbox: add/get/list/delete
-- Auth: AppID/AppSecret in config + keyring, access_token caching + refresh
+- Auth: AppID in config; AppSecret/access_token in keyring (Linux: config file), access_token caching + refresh
 - Output modes: human (default), JSON, plain
 - Retry/backoff for 429/5xx
-- Cross‑platform keyring backend selection
+- Keyring backend selection on macOS/Windows
 
 ## Install
 
@@ -39,7 +39,7 @@ go build -o bin/wxcli ./cmd/wxcli
 
 ## Configuration
 
-AppID is stored in config.json; AppSecret/access_token are stored in keyring.
+AppID is stored in config.json. On macOS/Windows, AppSecret/access_token are stored in the keyring; on Linux they are stored in config.json.
 
 ```bash
 wxcli config path
@@ -73,7 +73,7 @@ Clear secrets:
 wxcli auth clear
 ```
 
-Keyring backend:
+Keyring backend (macOS/Windows):
 
 ```bash
 wxcli auth keyring
@@ -135,11 +135,12 @@ CGO_ENABLED=0 go test ./...
 
 ## Security Notes
 
-- Never store AppSecret/access_token in config.json
-- Keyring backend can be configured via `wxcli auth keyring` or env vars
+- On macOS/Windows, AppSecret/access_token are stored in the keyring, not config.json
+- On Linux, AppSecret/access_token are stored in config.json (0600)
+- Keyring backend can be configured via `wxcli auth keyring` or env vars on macOS/Windows
 - Error output redacts `secret=` and `access_token=` query params
 
-## Environment Variables
+## Environment Variables (macOS/Windows)
 
 - `WXCLI_KEYRING_BACKEND`: `auto|keychain|file`
 - `WXCLI_KEYRING_PASSWORD`: password for file backend (non‑interactive)

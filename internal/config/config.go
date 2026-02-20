@@ -4,14 +4,22 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/yosuke-furukawa/json5/encoding/json5"
 )
 
+type AccessToken struct {
+	Token     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+}
+
 type File struct {
-	AppID          string `json:"app_id"`
-	Name           string `json:"name,omitempty"`
-	KeyringBackend string `json:"keyring_backend,omitempty"`
+	AppID          string       `json:"app_id"`
+	Name           string       `json:"name,omitempty"`
+	KeyringBackend string       `json:"keyring_backend,omitempty"`
+	AppSecret      string       `json:"app_secret,omitempty"`
+	AccessToken    *AccessToken `json:"access_token,omitempty"`
 }
 
 func ReadConfig() (File, error) {

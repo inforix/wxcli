@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"runtime"
 	"strings"
-	"time"
 
 	"github.com/99designs/keyring"
 
@@ -20,6 +20,7 @@ const (
 	backendAuto     = "auto"
 	backendKeychain = "keychain"
 	backendFile     = "file"
+	backendConfig   = "config"
 )
 
 type BackendInfo struct {
@@ -36,6 +37,9 @@ func KeyringPasswordEnv() string {
 }
 
 func ResolveKeyringBackendInfo() (BackendInfo, error) {
+	if runtime.GOOS == "linux" {
+		return BackendInfo{Value: backendConfig, Source: "linux"}, nil
+	}
 	if v := normalizeBackend(os.Getenv(keyringBackendEnv)); v != "" {
 		return BackendInfo{Value: v, Source: "env"}, nil
 	}
@@ -50,6 +54,9 @@ func ResolveKeyringBackendInfo() (BackendInfo, error) {
 }
 
 func OpenDefault() (*Store, error) {
+	if runtime.GOOS == "linux" {
+		return &Store{useConfig: true}, nil
+	}
 	info, err := ResolveKeyringBackendInfo()
 	if err != nil {
 		return nil, err
@@ -113,17 +120,15 @@ func filePasswordFunc() keyring.PromptFunc {
 }
 
 type Store struct {
-	ring keyring.Keyring
+	ring      keyring.Keyring
+	useConfig bool
 }
 
 func NewStoreWithKeyring(r keyring.Keyring) *Store {
 	return &Store{ring: r}
 }
 
-type AccessToken struct {
-	Token     string    `json:"token"`
-	ExpiresAt time.Time `json:"expires_at"`
-}
+type AccessToken = config.AccessToken
 
 func appSecretKey(appID string) string {
 	return fmt.Sprintf("wxcli.appsecret.%s", appID)
@@ -134,10 +139,34 @@ func accessTokenKey(appID string) string {
 }
 
 func (s *Store) SetAppSecret(appID, secret string) error {
+	if s.useConfig {
+		cfg, err := config.ReadConfig()
+		if err != nil {
+			return err
+		}
+		if appID != "" {
+			cfg.AppID = appID
+		}
+		cfg.AppSecret = secret
+		return config.WriteConfig(cfg)
+	}
 	return s.ring.Set(keyring.Item{Key: appSecretKey(appID), Data: []byte(secret)})
 }
 
 func (s *Store) GetAppSecret(appID string) (string, error) {
+	if s.useConfig {
+		cfg, err := config.ReadConfig()
+		if err != nil {
+			return "", err
+		}
+		if appID != "" && cfg.AppID != "" && cfg.AppID != appID {
+			return "", keyring.ErrKeyNotFound
+		}
+		if cfg.AppSecret == "" {
+			return "", keyring.ErrKeyNotFound
+		}
+		return cfg.AppSecret, nil
+	}
 	item, err := s.ring.Get(appSecretKey(appID))
 	if err != nil {
 		return "", err
@@ -146,6 +175,18 @@ func (s *Store) GetAppSecret(appID string) (string, error) {
 }
 
 func (s *Store) SetAccessToken(appID string, token AccessToken) error {
+	if s.useConfig {
+		cfg, err := config.ReadConfig()
+		if err != nil {
+			return err
+		}
+		if appID != "" {
+			cfg.AppID = appID
+		}
+		accessToken := config.AccessToken{Token: token.Token, ExpiresAt: token.ExpiresAt}
+		cfg.AccessToken = &accessToken
+		return config.WriteConfig(cfg)
+	}
 	b, err := json.Marshal(token)
 	if err != nil {
 		return err
@@ -154,6 +195,19 @@ func (s *Store) SetAccessToken(appID string, token AccessToken) error {
 }
 
 func (s *Store) GetAccessToken(appID string) (AccessToken, error) {
+	if s.useConfig {
+		cfg, err := config.ReadConfig()
+		if err != nil {
+			return AccessToken{}, err
+		}
+		if appID != "" && cfg.AppID != "" && cfg.AppID != appID {
+			return AccessToken{}, keyring.ErrKeyNotFound
+		}
+		if cfg.AccessToken == nil || cfg.AccessToken.Token == "" {
+			return AccessToken{}, keyring.ErrKeyNotFound
+		}
+		return *cfg.AccessToken, nil
+	}
 	item, err := s.ring.Get(accessTokenKey(appID))
 	if err != nil {
 		return AccessToken{}, err
@@ -166,6 +220,18 @@ func (s *Store) GetAccessToken(appID string) (AccessToken, error) {
 }
 
 func (s *Store) Clear(appID string) error {
+	if s.useConfig {
+		cfg, err := config.ReadConfig()
+		if err != nil {
+			return err
+		}
+		if appID != "" && cfg.AppID != "" && cfg.AppID != appID {
+			return nil
+		}
+		cfg.AppSecret = ""
+		cfg.AccessToken = nil
+		return config.WriteConfig(cfg)
+	}
 	if err := s.ring.Remove(appSecretKey(appID)); err != nil && !errors.Is(err, keyring.ErrKeyNotFound) {
 		return err
 	}
