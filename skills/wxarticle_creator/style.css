@@ -1,0 +1,304 @@
+/* Custom style */
+
+/* Global properties
+ * Page padding: 30px
+ * Font family: Optima-Regular
+ * English word break: break-all
+ */
+div.table table tr:nth-child(1),
+div.table table tr:nth-child(9) {
+  background: #fff1f1;
+}
+
+#nice {
+  font-family: Optima-Regular, Optima, PingFangSC-light, PingFangTC-light,
+    "PingFang SC", Cambria, Cochin, Georgia, Times, "Times New Roman", serif;
+  padding: 15px;
+  font-size: 16px;
+  color: #353535;
+  word-spacing: 0.8px;
+  letter-spacing: 0.8px;
+  border-radius: 16px;
+}
+
+/* Paragraph
+ * Margin top/bottom: 0.8em
+ * Line height: 2.5
+ * Text align: justify
+ */
+#nice p {
+  line-height: 2.5;
+  margin: 0.8em 0;
+  font-size: 16px;
+  color: #353535;
+  text-align: justify;
+}
+
+/* H1 */
+#nice h1 {
+  text-align: center;
+  font-size: 1.3em;
+}
+
+/* H1 content */
+#nice h1 .content {
+  display: inline-block;
+  font-weight: bold;
+  background: #039;
+  color: #ffffff;
+  padding: 3px 10px 1px;
+  border-radius: 13px;
+}
+
+#nice h1:after {}
+
+/* H2 */
+#nice h2 {
+  text-align: left;
+  margin: 20px 10px 0 0;
+}
+
+/* H2 content */
+#nice h2 .content {
+  font-size: 36px;
+  font-weight: bold;
+  color: #039;
+  display: inline-block;
+  padding-left: 10px;
+  border-left: 5px solid #039;
+}
+
+#nice h2:after {}
+
+/* H3 */
+#nice h3 {}
+
+/* H3 content */
+#nice h3 .content {
+  font-size: 28px;
+  color: #039;
+}
+
+#nice h4 .content {
+  color: #039;
+  font-weight: 700;
+}
+
+#nice h3:after {}
+
+/* Unordered list */
+#nice ul {
+  color: #039;
+  font-size: 16px;
+}
+
+/* Ordered list */
+#nice ol {
+  color: #039;
+  font-size: 16px;
+}
+
+/* List content */
+#nice li section {
+  color: #353535;
+  line-height: 2;
+}
+
+/* Quote */
+#nice .multiquote-3 {
+  font-style: normal;
+  border-left: none;
+  padding: 15px 10px;
+  line-height: 2;
+  border-radius: 13px;
+  color: #353535;
+  background: #f5f5f5;
+  text-align: justify;
+}
+
+#nice .multiquote-3:before {
+  content: "\201c";
+  display: block;
+  font-size: 2em;
+  color: rgb(248, 57, 41);
+  font-family: Arial, serif;
+  line-height: 1em;
+  font-weight: 700;
+}
+
+/* Quote text */
+#nice .multiquote-3 p {
+  color: #353535;
+  font-size: 16px;
+  margin: 0 10px;
+  display: block;
+  line-height: 2;
+}
+
+#nice .multiquote-1:after {
+  content: "\201d";
+  float: right;
+  display: block;
+  font-size: 2em;
+  color: rgb(248, 57, 41);
+  font-family: Arial, serif;
+  line-height: 1em;
+  font-weight: 700;
+}
+
+/* Links */
+#nice a {
+  color: rgb(41, 57, 245);
+  font-weight: 400;
+  border-bottom: 1px solid rgb(41, 57, 245);
+}
+
+/* Strong */
+#nice strong {
+  font-weight: 700;
+  color: #039;
+}
+
+/* Emphasis */
+#nice em {
+  color: #933;
+  background-color: transparent;
+}
+
+/* Strong emphasis */
+#nice em strong {
+  color: #039;
+}
+
+#nice del {}
+
+/* Divider */
+#nice hr {
+  height: 1px;
+  padding: 0;
+  border: none;
+  border-top: medium solidid #333;
+  text-align: center;
+  background-image: linear-gradient(
+    to right,
+    rgba(248, 57, 41, 0),
+    rgba(248, 57, 41, 0.75),
+    rgba(248, 57, 41, 0)
+  );
+}
+
+/* Images */
+#nice figure {
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+#nice figure a img {
+  border-radius: 16px;
+  width: 100%;
+  max-width: 100%;
+}
+
+#nice img {
+  border-radius: 6px;
+  display: block;
+  margin: 20px auto;
+  max-width: 95%;
+  object-fit: contain;
+}
+
+/* Image caption */
+#nice figcaption {
+  display: block;
+  font-size: 12px;
+}
+
+/* Inline code */
+#nice p code,
+#nice li code {
+  color: #444;
+}
+
+#nice pre code {}
+
+/* Table cells */
+#nice table tr th,
+#nice table tr td {
+  font-size: 16px;
+  color: #645647;
+}
+
+#nice table tr th {
+  color: #353535;
+  background-color: #dbd9d8;
+}
+
+#nice .footnotes {
+  font-size: 16px;
+}
+
+/* Footnote text */
+#nice .footnote-word {
+  font-weight: normal;
+  color: #f83929;
+}
+
+/* Footnote superscript */
+#nice .footnote-ref {
+  font-weight: normal;
+  color: #f83929;
+}
+
+/* Footnote link style */
+#nice .footnote-item em {
+  font-size: 16px;
+  display: block;
+}
+
+/* Footnotes heading */
+#nice .footnotes-sep:before {
+  content: "References ";
+  color: #f83929;
+  letter-spacing: 1px;
+  text-align: left;
+  display: block;
+  font-weight: 500;
+  padding-bottom: 0.1em;
+  border-bottom: 3px double #f83929;
+  font-size: 20px;
+}
+
+/* Footnote index */
+#nice .footnote-num {
+  color: #f83929;
+}
+
+/* Footnote text */
+#nice .footnote-item p {
+  font-weight: 400;
+  color: #f83929;
+}
+
+/* Footnote explanation */
+#nice .footnote-item p em {
+  font-weight: 400;
+  font-size: 14px;
+  color: #353535;
+}
+
+/* Block equation */
+#nice .block-equation svg {
+  color: #353535;
+}
+
+/* Inline equation */
+#nice .inline-equation svg {
+  color: #353535;
+}
+
+/* Image flow */
+#nice .imageflow-img {
+  display: inline-block;
+  width: 100%;
+  margin-bottom: 0;
+}
