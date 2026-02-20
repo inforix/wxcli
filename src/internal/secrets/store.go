@@ -10,7 +10,7 @@ import (
 
 	"github.com/99designs/keyring"
 
-	"wxcli/internal/config"
+	"wxcli/src/internal/config"
 )
 
 const (

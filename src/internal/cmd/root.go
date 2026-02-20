@@ -8,11 +8,11 @@ import (
 
 	"github.com/alecthomas/kong"
 
-	"wxcli/internal/config"
-	"wxcli/internal/errfmt"
-	"wxcli/internal/outfmt"
-	"wxcli/internal/secrets"
-	"wxcli/internal/ui"
+	"wxcli/src/internal/config"
+	"wxcli/src/internal/errfmt"
+	"wxcli/src/internal/outfmt"
+	"wxcli/src/internal/secrets"
+	"wxcli/src/internal/ui"
 )
 
 type RootFlags struct {

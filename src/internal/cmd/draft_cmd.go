@@ -9,11 +9,11 @@ import (
 
 	"github.com/99designs/keyring"
 
-	"wxcli/internal/auth"
-	"wxcli/internal/draft"
-	"wxcli/internal/outfmt"
-	"wxcli/internal/secrets"
-	"wxcli/internal/ui"
+	"wxcli/src/internal/auth"
+	"wxcli/src/internal/draft"
+	"wxcli/src/internal/outfmt"
+	"wxcli/src/internal/secrets"
+	"wxcli/src/internal/ui"
 )
 
 type DraftAddCmd struct {

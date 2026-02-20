@@ -7,10 +7,10 @@ import (
 
 	"github.com/99designs/keyring"
 
-	"wxcli/internal/config"
-	"wxcli/internal/outfmt"
-	"wxcli/internal/secrets"
-	"wxcli/internal/ui"
+	"wxcli/src/internal/config"
+	"wxcli/src/internal/outfmt"
+	"wxcli/src/internal/secrets"
+	"wxcli/src/internal/ui"
 )
 
 type AuthCmd struct {

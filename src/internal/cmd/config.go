@@ -4,8 +4,8 @@ import (
 	"context"
 	"os"
 
-	"wxcli/internal/config"
-	"wxcli/internal/outfmt"
+	"wxcli/src/internal/config"
+	"wxcli/src/internal/outfmt"
 )
 
 type ConfigCmd struct {

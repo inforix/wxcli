@@ -10,7 +10,7 @@ import (
 
 	"github.com/99designs/keyring"
 
-	"wxcli/internal/secrets"
+	"wxcli/src/internal/secrets"
 )
 
 type fakeDoer struct {

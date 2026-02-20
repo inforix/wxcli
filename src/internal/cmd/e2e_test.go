@@ -11,8 +11,8 @@ import (
 	"testing"
 	"time"
 
-	"wxcli/internal/config"
-	"wxcli/internal/secrets"
+	"wxcli/src/internal/config"
+	"wxcli/src/internal/secrets"
 )
 
 func TestE2EDraftListAndDelete(t *testing.T) {

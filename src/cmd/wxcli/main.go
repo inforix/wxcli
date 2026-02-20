@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"wxcli/internal/cmd"
+	"wxcli/src/internal/cmd"
 )
 
 func main() {

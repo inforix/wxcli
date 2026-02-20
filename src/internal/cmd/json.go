@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"os"
 
-	"wxcli/internal/outfmt"
+	"wxcli/src/internal/outfmt"
 )
 
 func writeJSON(ctx context.Context, v any) error {

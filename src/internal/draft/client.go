@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"strings"
 
-	"wxcli/internal/errfmt"
-	"wxcli/internal/httpclient"
+	"wxcli/src/internal/errfmt"
+	"wxcli/src/internal/httpclient"
 )
 
 const defaultBaseURL = "https://api.weixin.qq.com"

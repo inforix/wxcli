@@ -34,7 +34,7 @@ sudo rpm -i wxcli_<version>_linux_amd64.rpm
 ### Build from source
 
 ```bash
-go build -o bin/wxcli ./cmd/wxcli
+go build -o bin/wxcli ./src/cmd/wxcli
 ```
 
 ## Configuration

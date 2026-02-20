@@ -10,10 +10,10 @@ import (
 
 	"github.com/99designs/keyring"
 
-	"wxcli/internal/config"
-	"wxcli/internal/errfmt"
-	"wxcli/internal/httpclient"
-	"wxcli/internal/secrets"
+	"wxcli/src/internal/config"
+	"wxcli/src/internal/errfmt"
+	"wxcli/src/internal/httpclient"
+	"wxcli/src/internal/secrets"
 )
 
 const (
