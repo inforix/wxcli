@@ -1,0 +1,44 @@
+version: 2
+
+project_name: wxcli
+
+builds:
+  - id: wxcli
+    main: ./cmd/wxcli
+    binary: wxcli
+    env:
+      - CGO_ENABLED=0
+    goos:
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - arm64
+
+archives:
+  - id: default
+    formats: [tar.gz]
+    name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+
+homebrew_casks:
+  - name: wxcli
+    ids: [default]
+    binaries: [wxcli]
+    homepage: https://github.com/inforix/wxcli
+    description: "A fast CLI for managing WeChat Official Account"
+    repository:
+      owner: inforix
+      name: homebrew-wxcli
+      branch: main
+      token: "{{ .Env.HOMEBREW_TAP_GITHUB_TOKEN }}"
+    commit_msg_template: "Brew cask update for {{ .ProjectName }} {{ .Tag }}"
+
+nfpms:
+  - id: wxcli
+    package_name: wxcli
+    homepage: https://github.com/inforix/wxcli
+    description: "A fast CLI for managing WeChat Official Account"
+    maintainer: "inforix"
+    formats:
+      - deb
+      - rpm

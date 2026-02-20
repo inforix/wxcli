@@ -12,6 +12,27 @@ Weixin draftbox CLI for subscription accounts. Manages auth, access_token cachin
 
 ## Install
 
+### macOS (Homebrew Cask)
+
+```bash
+brew tap inforix/wxcli
+brew install --cask wxcli
+```
+
+### Linux (deb/rpm)
+
+Download the `.deb` or `.rpm` from GitHub Releases, then install:
+
+```bash
+# Debian/Ubuntu
+sudo dpkg -i wxcli_<version>_linux_amd64.deb
+
+# RHEL/CentOS/Fedora
+sudo rpm -i wxcli_<version>_linux_amd64.rpm
+```
+
+### Build from source
+
 ```bash
 go build -o bin/wxcli ./cmd/wxcli
 ```
