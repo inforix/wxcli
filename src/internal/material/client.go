@@ -90,6 +90,14 @@ type AddNewsResponse struct {
 	MediaID string `json:"media_id"`
 }
 
+type UpdateNewsRequest struct {
+	MediaID string      `json:"media_id"`
+	Index   int         `json:"index"`
+	Article NewsArticle `json:"articles"`
+}
+
+type UpdateNewsResponse struct{}
+
 type CountResponse struct {
 	VoiceCount int `json:"voice_count"`
 	VideoCount int `json:"video_count"`
@@ -249,6 +257,17 @@ func (c *Client) AddNews(ctx context.Context, accessToken string, req AddNewsReq
 		return resp, err
 	}
 	return resp, nil
+}
+
+func (c *Client) UpdateNews(ctx context.Context, accessToken string, req UpdateNewsRequest) error {
+	if req.MediaID == "" {
+		return fmt.Errorf("missing media_id")
+	}
+	if req.Index < 0 {
+		return fmt.Errorf("invalid index")
+	}
+	var resp UpdateNewsResponse
+	return c.postJSON(ctx, accessToken, "/cgi-bin/material/update_news", req, &resp)
 }
 
 func (c *Client) UploadImage(ctx context.Context, accessToken string, filePath string) (UploadImageResponse, error) {

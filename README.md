@@ -5,7 +5,7 @@ Weixin CLI for subscription accounts. Manages auth, access_token caching, and dr
 ## Features
 
 - Draftbox: add/get/list/delete
-- Material: get permanent material (news/video/binary)
+- Material: get/list/delete/count/upload/update-news for permanent materials
 - Auth: AppID in config; AppSecret/access_token in keyring (Linux: config file), access_token caching + refresh
 - Output modes: human (default), JSON, plain
 - Retry/backoff for 429/5xx
@@ -143,7 +143,13 @@ Upload a permanent news material:
 wxcli material add-news --title "Hello" --content "<p>Hi</p>" --thumb-media-id MEDIA_ID
 ```
 
-List permanent materials:
+Update a permanent news material:
+
+```bash
+wxcli material update-news MEDIA_ID --index 0 --title "Hello" --content "<p>Hi</p>" --thumb-media-id MEDIA_ID
+```
+
+List permanent materials (news titles per article are shown):
 
 ```bash
 wxcli material list --type image --offset 0 --count 10

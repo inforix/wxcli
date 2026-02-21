@@ -39,6 +39,20 @@ type MaterialAddNewsCmd struct {
 	OnlyFansCanComment int    `name:"only-fans-can-comment" help:"Only fans can comment (0|1)" default:"0"`
 }
 
+type MaterialUpdateNewsCmd struct {
+	MediaID            string `arg:"" name:"media_id" help:"Material media_id" required:""`
+	Index              int    `name:"index" help:"Article index (0-based)" default:"0"`
+	Title              string `name:"title" help:"Article title" required:""`
+	Content            string `name:"content" help:"Article content (HTML); use '-' to read from stdin" required:""`
+	ThumbMediaID       string `name:"thumb-media-id" help:"Thumb media ID" required:""`
+	Author             string `name:"author" help:"Article author"`
+	Digest             string `name:"digest" help:"Article digest"`
+	ContentSourceURL   string `name:"content-source-url" help:"Original article URL"`
+	ShowCoverPic       int    `name:"show-cover-pic" help:"Show cover pic (0|1)" default:"0"`
+	NeedOpenComment    int    `name:"need-open-comment" help:"Open comment (0|1)" default:"0"`
+	OnlyFansCanComment int    `name:"only-fans-can-comment" help:"Only fans can comment (0|1)" default:"0"`
+}
+
 type MaterialListCmd struct {
 	Type   string `name:"type" help:"Material type: news|image|video|voice" default:"news"`
 	Offset int    `name:"offset" help:"Offset" default:"0"`
@@ -279,6 +293,64 @@ func (c *MaterialAddNewsCmd) Run(ctx context.Context, _ *RootFlags) error {
 	return nil
 }
 
+func (c *MaterialUpdateNewsCmd) Run(ctx context.Context, _ *RootFlags) error {
+	if c.Index < 0 {
+		return usage("index must be >= 0")
+	}
+	content := c.Content
+	if content == "-" {
+		stdinContent, err := io.ReadAll(os.Stdin)
+		if err != nil {
+			return err
+		}
+		content = string(stdinContent)
+	}
+	appID, err := auth.RequireAppID()
+	if err != nil {
+		return err
+	}
+	store, err := secrets.OpenDefault()
+	if err != nil {
+		return err
+	}
+	manager := auth.NewTokenManager(nil, store)
+	accessToken, err := manager.GetValidAccessToken(ctx, appID)
+	if err != nil {
+		return err
+	}
+	client := material.NewClient(nil)
+	if flags := RootFlagsFromContext(ctx); flags != nil && flags.BaseURL != "" {
+		client.BaseURL = flags.BaseURL
+	}
+	if err := client.UpdateNews(ctx, accessToken, material.UpdateNewsRequest{
+		MediaID: c.MediaID,
+		Index:   c.Index,
+		Article: material.NewsArticle{
+			Title:              c.Title,
+			ThumbMediaID:       c.ThumbMediaID,
+			Author:             c.Author,
+			Digest:             c.Digest,
+			ShowCoverPic:       c.ShowCoverPic,
+			Content:            content,
+			ContentSourceURL:   c.ContentSourceURL,
+			NeedOpenComment:    c.NeedOpenComment,
+			OnlyFansCanComment: c.OnlyFansCanComment,
+		},
+	}); err != nil {
+		return err
+	}
+	if outfmt.IsJSON(ctx) {
+		return writeJSON(ctx, map[string]any{"updated": true})
+	}
+	u := ui.FromContext(ctx)
+	if outfmt.IsPlain(ctx) {
+		u.Out().Printf("updated=true")
+		return nil
+	}
+	u.Out().Printf("updated\ttrue")
+	return nil
+}
+
 func (c *MaterialListCmd) Run(ctx context.Context, _ *RootFlags) error {
 	if c.Count < 1 || c.Count > 20 {
 		return usage("count must be 1-20")
@@ -327,7 +399,10 @@ func (c *MaterialListCmd) Run(ctx context.Context, _ *RootFlags) error {
 				u.Out().Printf("url=%s", item.URL)
 			}
 			if item.Content != nil && len(item.Content.NewsItem) > 0 {
-				u.Out().Printf("title=%s", item.Content.NewsItem[0].Title)
+				u.Out().Printf("news_count=%d", len(item.Content.NewsItem))
+				for i, news := range item.Content.NewsItem {
+					u.Out().Printf("news_title_%d=%s", i, news.Title)
+				}
 			}
 		}
 		return nil
@@ -343,7 +418,10 @@ func (c *MaterialListCmd) Run(ctx context.Context, _ *RootFlags) error {
 			u.Out().Printf("url\t%s", item.URL)
 		}
 		if item.Content != nil && len(item.Content.NewsItem) > 0 {
-			u.Out().Printf("title\t%s", item.Content.NewsItem[0].Title)
+			u.Out().Printf("news_count\t%d", len(item.Content.NewsItem))
+			for i, news := range item.Content.NewsItem {
+				u.Out().Printf("news_title[%d]\t%s", i, news.Title)
+			}
 		}
 	}
 	return nil

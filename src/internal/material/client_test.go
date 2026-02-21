@@ -300,3 +300,38 @@ func TestUploadImage(t *testing.T) {
 		t.Fatalf("unexpected resp: %+v", resp)
 	}
 }
+
+func TestUpdateNews(t *testing.T) {
+	srv := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var body map[string]any
+		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+			t.Fatalf("decode: %v", err)
+		}
+		if body["media_id"] != "mid" {
+			t.Fatalf("unexpected media_id")
+		}
+		if int(body["index"].(float64)) != 0 {
+			t.Fatalf("unexpected index")
+		}
+		article, ok := body["articles"].(map[string]any)
+		if !ok {
+			t.Fatalf("expected articles object")
+		}
+		if article["title"] != "t" {
+			t.Fatalf("unexpected title")
+		}
+		_ = json.NewEncoder(w).Encode(map[string]any{"errcode": 0, "errmsg": "ok"})
+	}))
+	defer srv.Close()
+
+	client := NewClient(srv.Client())
+	client.BaseURL = srv.URL
+
+	if err := client.UpdateNews(context.Background(), "token", UpdateNewsRequest{
+		MediaID: "mid",
+		Index:   0,
+		Article: NewsArticle{Title: "t", Content: "c", ThumbMediaID: "thumb"},
+	}); err != nil {
+		t.Fatalf("update news: %v", err)
+	}
+}
