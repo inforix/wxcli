@@ -1,10 +1,11 @@
 # wxcli
 
-Weixin draftbox CLI for subscription accounts. Manages auth, access_token caching, and draftbox operations.
+Weixin CLI for subscription accounts. Manages auth, access_token caching, and draftbox/material operations.
 
 ## Features
 
 - Draftbox: add/get/list/delete
+- Material: get permanent material (news/video/binary)
 - Auth: AppID in config; AppSecret/access_token in keyring (Linux: config file), access_token caching + refresh
 - Output modes: human (default), JSON, plain
 - Retry/backoff for 429/5xx
@@ -113,6 +114,51 @@ Delete a draft:
 
 ```bash
 wxcli draft delete MEDIA_ID
+```
+
+## Material
+
+Get a permanent material (news/video JSON or binary media):
+
+```bash
+wxcli material get MEDIA_ID
+```
+
+Save binary material to a file:
+
+```bash
+wxcli material get MEDIA_ID --output ./downloads
+```
+
+Upload a permanent material (image/voice/video/thumb):
+
+```bash
+wxcli material upload --type image --file ./path/to/image.jpg
+wxcli material upload --type video --file ./path/to/video.mp4 --title "Video" --description "Intro"
+```
+
+Upload a permanent news material:
+
+```bash
+wxcli material add-news --title "Hello" --content "<p>Hi</p>" --thumb-media-id MEDIA_ID
+```
+
+List permanent materials:
+
+```bash
+wxcli material list --type image --offset 0 --count 10
+```
+
+Delete a permanent material:
+
+```bash
+wxcli material delete MEDIA_ID
+```
+
+Get material counts:
+
+```bash
+wxcli material count
 ```
 
 ## Output Modes

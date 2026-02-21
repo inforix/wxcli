@@ -31,9 +31,10 @@ type CLI struct {
 
 	Version kong.VersionFlag `help:"Print version and exit"`
 
-	Auth   AuthCmd   `cmd:"" help:"Auth and credentials"`
-	Config ConfigCmd `cmd:"" help:"Configuration"`
-	Draft  DraftCmd  `cmd:"" help:"Draftbox management"`
+	Auth     AuthCmd     `cmd:"" help:"Auth and credentials"`
+	Config   ConfigCmd   `cmd:"" help:"Configuration"`
+	Draft    DraftCmd    `cmd:"" help:"Draftbox management"`
+	Material MaterialCmd `cmd:"" help:"Material management"`
 }
 
 type exitPanic struct{ code int }
@@ -145,7 +146,7 @@ func helpDescription() string {
 	} else if backendInfo.Value != "" {
 		backendLine = fmt.Sprintf("%s (source: %s)", backendInfo.Value, backendInfo.Source)
 	}
-	return fmt.Sprintf("Weixin CLI for draftbox management\n\nConfig:\n  file: %s\n  keyring backend: %s", configLine, backendLine)
+	return fmt.Sprintf("Weixin CLI for draftbox and material management\n\nConfig:\n  file: %s\n  keyring backend: %s", configLine, backendLine)
 }
 
 func wrapParseError(err error) error {
