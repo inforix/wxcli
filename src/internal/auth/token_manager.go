@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"net/url"
+	"strings"
 	"time"
 
 	"github.com/99designs/keyring"
@@ -49,6 +50,17 @@ func NewTokenManager(httpClient HTTPDoer, store *secrets.Store) *TokenManager {
 		Now:      time.Now,
 		TokenURL: defaultTokenURL,
 	}
+}
+
+func TokenURLForBase(base string) (string, error) {
+	if strings.TrimSpace(base) == "" {
+		return defaultTokenURL, nil
+	}
+	normalized := strings.TrimSpace(base)
+	if !strings.HasPrefix(normalized, "http://") && !strings.HasPrefix(normalized, "https://") {
+		normalized = "https://" + normalized
+	}
+	return url.JoinPath(normalized, "cgi-bin/token")
 }
 
 func (m *TokenManager) GetValidAccessToken(ctx context.Context, appID string) (string, error) {

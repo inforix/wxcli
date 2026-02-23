@@ -36,6 +36,10 @@ func KeyringPasswordEnv() string {
 	return keyringPasswordEnv
 }
 
+func NormalizeBackend(value string) string {
+	return normalizeBackend(value)
+}
+
 func ResolveKeyringBackendInfo() (BackendInfo, error) {
 	if runtime.GOOS == "linux" {
 		return BackendInfo{Value: backendConfig, Source: "linux"}, nil

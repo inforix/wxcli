@@ -44,7 +44,14 @@ func (c *AuthSetCmd) Run(ctx context.Context, flags *RootFlags) error {
 	if c.AppID == "" || c.AppSecret == "" {
 		return usage("missing appid/appsecret")
 	}
-	cfg := config.File{AppID: c.AppID, Name: c.Name}
+	cfg, err := config.ReadConfig()
+	if err != nil {
+		return err
+	}
+	cfg.AppID = c.AppID
+	if c.Name != "" {
+		cfg.Name = c.Name
+	}
 	if err := config.WriteConfig(cfg); err != nil {
 		return err
 	}
@@ -168,11 +175,15 @@ type AuthKeyringCmd struct {
 func (c *AuthKeyringCmd) Run(ctx context.Context, _ *RootFlags) error {
 	backend := c.Backend
 	if backend != "" {
+		normalized := secrets.NormalizeBackend(backend)
+		if normalized == "" {
+			return usage("backend must be auto|keychain|file")
+		}
 		cfg, err := config.ReadConfig()
 		if err != nil {
 			return err
 		}
-		cfg.KeyringBackend = backend
+		cfg.KeyringBackend = normalized
 		if err := config.WriteConfig(cfg); err != nil {
 			return err
 		}

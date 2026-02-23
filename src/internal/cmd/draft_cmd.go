@@ -40,7 +40,10 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	manager := auth.NewTokenManager(nil, store)
+	manager, err := newTokenManager(ctx, store)
+	if err != nil {
+		return err
+	}
 	accessToken, err := manager.GetValidAccessToken(ctx, appID)
 	if err != nil {
 		return err
@@ -84,7 +87,10 @@ func (c *DraftGetCmd) Run(ctx context.Context, _ *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	manager := auth.NewTokenManager(nil, store)
+	manager, err := newTokenManager(ctx, store)
+	if err != nil {
+		return err
+	}
 	accessToken, err := manager.GetValidAccessToken(ctx, appID)
 	if err != nil {
 		return err
@@ -133,7 +139,10 @@ func (c *DraftListCmd) Run(ctx context.Context, _ *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	manager := auth.NewTokenManager(nil, store)
+	manager, err := newTokenManager(ctx, store)
+	if err != nil {
+		return err
+	}
 	accessToken, err := manager.GetValidAccessToken(ctx, appID)
 	if err != nil {
 		return err
@@ -179,7 +188,10 @@ func (c *DraftDeleteCmd) Run(ctx context.Context, _ *RootFlags) error {
 	if err != nil {
 		return err
 	}
-	manager := auth.NewTokenManager(nil, store)
+	manager, err := newTokenManager(ctx, store)
+	if err != nil {
+		return err
+	}
 	accessToken, err := manager.GetValidAccessToken(ctx, appID)
 	if err != nil {
 		return err
