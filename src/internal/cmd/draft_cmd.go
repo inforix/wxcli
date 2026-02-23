@@ -18,7 +18,9 @@ import (
 
 type DraftAddCmd struct {
 	Title        string `name:"title" help:"Article title" required:""`
-	Content      string `name:"content" help:"Article content (HTML); use '-' to read from stdin" required:""`
+	Content      string `name:"content" help:"Article content (HTML or Markdown); use '-' to read from stdin" required:""`
+	Format       string `name:"format" help:"Content format: html|markdown|auto" default:"auto"`
+	CSSPath      string `name:"css-path" help:"Path to CSS file (optional; inlines styles)"`
 	ThumbMediaID string `name:"thumb-media-id" help:"Thumb media ID" required:""`
 }
 
@@ -30,6 +32,27 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 			return err
 		}
 		content = string(stdinContent)
+	}
+	format, err := normalizeDraftFormat(c.Format, content)
+	if err != nil {
+		return err
+	}
+	rendered := content
+	if format == "markdown" {
+		rendered, err = renderMarkdown(content)
+		if err != nil {
+			return err
+		}
+	}
+	if c.CSSPath != "" {
+		cssBytes, err := os.ReadFile(c.CSSPath)
+		if err != nil {
+			return err
+		}
+		rendered, err = inlineCSS(rendered, string(cssBytes))
+		if err != nil {
+			return err
+		}
 	}
 
 	appID, err := auth.RequireAppID()
@@ -55,7 +78,7 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	resp, err := client.Add(ctx, accessToken, draft.AddDraftRequest{
 		Articles: []draft.DraftArticle{{
 			Title:        c.Title,
-			Content:      content,
+			Content:      rendered,
 			ThumbMediaID: c.ThumbMediaID,
 		}},
 	})
