@@ -182,13 +182,11 @@ func CleanupProseMirrorArtifacts(html string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	doc.Find("section.code-snippet__js, pre, code").Each(func(_ int, scope *goquery.Selection) {
-		scope.Find("span[leaf]").Each(func(_ int, s *goquery.Selection) {
-			s.Remove()
-		})
-		scope.Find("br.ProseMirror-trailingBreak").Each(func(_ int, b *goquery.Selection) {
-			b.Remove()
-		})
+	// Remove ProseMirror br tags from everywhere
+	doc.Find("br.ProseMirror-trailingBreak").Remove()
+	// Remove [leaf] attributes from all elements
+	doc.Find("[leaf]").Each(func(_ int, s *goquery.Selection) {
+		s.RemoveAttr("leaf")
 	})
 	body := doc.Find("body")
 	if body.Length() == 0 {
