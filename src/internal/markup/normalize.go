@@ -37,6 +37,35 @@ func TightenListParagraphs(html string) (string, error) {
 	return strings.TrimSpace(out), nil
 }
 
+func WrapHeadingContent(html string) (string, error) {
+	if strings.TrimSpace(html) == "" {
+		return html, nil
+	}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader("<html><body>" + html + "</body></html>"))
+	if err != nil {
+		return "", err
+	}
+	doc.Find("h1,h2,h3,h4").Each(func(_ int, h *goquery.Selection) {
+		if h.Find("span.content").Length() > 0 {
+			return
+		}
+		inner, err := h.Html()
+		if err != nil {
+			return
+		}
+		_ = h.SetHtml(`<span class="content">` + inner + `</span>`)
+	})
+	body := doc.Find("body")
+	if body.Length() == 0 {
+		return strings.TrimSpace(html), nil
+	}
+	out, err := body.Html()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(out), nil
+}
+
 func RemoveListBreaks(html string) (string, error) {
 	if strings.TrimSpace(html) == "" {
 		return html, nil
@@ -252,6 +281,53 @@ func StripNotionMetadataHTML(html string) (string, error) {
 				}
 			}
 			h2.Remove()
+		}
+	})
+	body := doc.Find("body")
+	if body.Length() == 0 {
+		return strings.TrimSpace(html), nil
+	}
+	out, err := body.Html()
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(out), nil
+}
+
+// StripNewlines removes literal newlines from HTML content.
+// Weixin converts \n to <br>, so we strip them to avoid double line breaks.
+// For code blocks, we convert \n to <br> to preserve line breaks.
+func StripNewlines(html string) (string, error) {
+	if strings.TrimSpace(html) == "" {
+		return html, nil
+	}
+	doc, err := goquery.NewDocumentFromReader(strings.NewReader("<html><body>" + html + "</body></html>"))
+	if err != nil {
+		return "", err
+	}
+	// For pre/code blocks, convert \n to <br> to preserve formatting
+	doc.Find("pre, code").Each(func(_ int, s *goquery.Selection) {
+		inner, err := s.Html()
+		if err != nil {
+			return
+		}
+		if strings.Contains(inner, "\n") {
+			replaced := strings.ReplaceAll(inner, "\n", "<br/>")
+			_ = s.SetHtml(replaced)
+		}
+	})
+	// Remove all remaining \n from elements (except pre/code)
+	doc.Find("*").Each(func(_ int, s *goquery.Selection) {
+		if s.Is("pre") || s.Is("code") {
+			return
+		}
+		htmlInside, err := s.Html()
+		if err != nil {
+			return
+		}
+		if strings.Contains(htmlInside, "\n") {
+			replaced := strings.ReplaceAll(htmlInside, "\n", "")
+			_ = s.SetHtml(replaced)
 		}
 	})
 	body := doc.Find("body")

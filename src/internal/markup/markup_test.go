@@ -51,6 +51,17 @@ func TestRemoveListBreaks(t *testing.T) {
 	}
 }
 
+func TestWrapHeadingContent(t *testing.T) {
+	in := "<h3>Title</h3>"
+	out, err := WrapHeadingContent(in)
+	if err != nil {
+		t.Fatalf("wrap heading content: %v", err)
+	}
+	if !strings.Contains(out, `<span class="content">Title</span>`) {
+		t.Fatalf("expected content span, got %q", out)
+	}
+}
+
 func TestConstrainCodeWidth(t *testing.T) {
 	html, err := MarkdownToHTML("```\ncode\n```")
 	if err != nil {
@@ -134,5 +145,33 @@ func TestCleanupProseMirrorArtifacts(t *testing.T) {
 	}
 	if strings.Contains(out, "ProseMirror-trailingBreak") || strings.Contains(out, "leaf=") {
 		t.Fatalf("expected artifacts removed, got %q", out)
+	}
+}
+
+func TestStripNewlines(t *testing.T) {
+	// Test that newlines are removed from regular text
+	in := "<p>Hello\nWorld</p><p>Test</p>"
+	out, err := StripNewlines(in)
+	if err != nil {
+		t.Fatalf("strip newlines: %v", err)
+	}
+	if strings.Contains(out, "\n") {
+		t.Fatalf("expected no newlines in output, got %q", out)
+	}
+	if !strings.Contains(out, "HelloWorld") {
+		t.Fatalf("expected HelloWorld without newline, got %q", out)
+	}
+
+	// Test that newlines in code blocks are converted to <br>
+	in2 := "<pre>line1\nline2</pre>"
+	out2, err := StripNewlines(in2)
+	if err != nil {
+		t.Fatalf("strip newlines: %v", err)
+	}
+	if strings.Contains(out2, "\n") {
+		t.Fatalf("expected no newlines in code block, got %q", out2)
+	}
+	if !strings.Contains(out2, "<br/>") {
+		t.Fatalf("expected <br/> in code block, got %q", out2)
 	}
 }

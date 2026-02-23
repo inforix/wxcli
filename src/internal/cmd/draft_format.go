@@ -51,6 +51,10 @@ func renderMarkdown(input string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	html, err = markup.WrapHeadingContent(html)
+	if err != nil {
+		return "", err
+	}
 	html, err = markup.TightenListParagraphs(html)
 	if err != nil {
 		return "", err
@@ -72,6 +76,10 @@ func renderMarkdown(input string) (string, error) {
 		return "", err
 	}
 	html, err = markup.ConstrainCodeWidth(html)
+	if err != nil {
+		return "", err
+	}
+	html, err = markup.StripNewlines(html)
 	if err != nil {
 		return "", err
 	}
