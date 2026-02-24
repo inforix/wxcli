@@ -22,6 +22,7 @@ type DraftAddCmd struct {
 	Content            string `name:"content" help:"Article content (HTML or Markdown); use '-' to read from stdin" required:""`
 	Format             string `name:"format" help:"Content format: html|markdown|auto" default:"auto"`
 	CSSPath            string `name:"css-path" help:"Path to CSS file (optional; inlines styles)"`
+	Author             string `name:"author" help:"Article author"`
 	NeedOpenComment    int    `name:"need-open-comment" aliases:"need_open_comment" help:"Open comment (0|1)" default:"1"`
 	OnlyFansCanComment int    `name:"only-fans-can-comment" aliases:"only_fans_can_comment" help:"Only fans can comment (0|1)" default:"0"`
 	ThumbMediaID       string `name:"thumb-media-id" help:"Thumb media ID" required:""`
@@ -99,6 +100,7 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	resp, err := client.Add(ctx, accessToken, draft.AddDraftRequest{
 		Articles: []draft.DraftArticle{{
 			Title:              c.Title,
+			Author:             c.Author,
 			Content:            rendered,
 			NeedOpenComment:    c.NeedOpenComment,
 			OnlyFansCanComment: c.OnlyFansCanComment,
