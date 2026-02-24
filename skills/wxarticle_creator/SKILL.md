@@ -16,7 +16,8 @@ account article (plain text or Markdown) and submit it as a draft.
 
 - `draft`: User-provided draft text (plain or Markdown)
 - `title`: Article title
-- `thumb_media_id`: Weixin thumbnail media id for draft
+- `thumb_media_id`: Weixin thumbnail media id for draft (optional, see Workflow)
+- `thumb_image`: Path to thumbnail image file (optional, used if thumb_media_id not provided)
 - `format`: Optional enum (`auto`, `markdown`, `plain`)
 
 ## Outputs
@@ -56,12 +57,22 @@ account article (plain text or Markdown) and submit it as a draft.
    - Fix typos and improve readability.
    - Keep structure; do not add new facts.
 
-4. Write Markdown source to a temporary file in a temp directory.
+4. Handle thumbnail (thumb_media_id):
+   - **If `thumb_media_id` is provided**: Use it directly.
+   - **If `thumb_image` is provided** (path to image file):
+     - Upload the image: `wxcli material upload --type image --file "<thumb_image>"`
+     - Extract the returned `media_id` from the output.
+   - **If neither is provided**:
+     - Get the latest image from materials: `wxcli material list --type image --offset 0 --count 1 --json`
+     - Extract the `media_id` from the first item.
+     - If no images exist, inform the user and proceed without thumb_media_id.
+
+5. Write Markdown source to a temporary file in a temp directory.
    - Create a temp directory (e.g., `/tmp/wxarticle_creator-<YYYYMMDD-HHMMSS>`).
    - Save as `<TMP_DIR>/article-<YYYYMMDD-HHMMSS>.md` (or another `<SOURCE.md>`).
    - Remove the temp directory after HTML is generated, unless the user requests it.
 
-5. Convert Markdown to HTML with the CLI.
+6. Convert Markdown to HTML with the CLI.
    - Copy `skills/wxarticle_creator/style.css` into the temp directory as `style.css`.
    - Run the command from the temp directory so `./style.css` resolves.
    - Command:
@@ -70,11 +81,13 @@ account article (plain text or Markdown) and submit it as a draft.
    - Ensure the content is wrapped in `<div id="nice">...</div>` if it is not
      already, so the stylesheet applies.
 
-6. User confirmation.
+7. User confirmation.
    - Show polished markdown and a rendered HTML snippet.
+   - If thumb_media_id was auto-fetched, mention which image is being used.
    - Ask: "Proceed to create Weixin draft with wxcli?"
 
-7. Submit via wxcli.
+8. Submit via wxcli.
+   - Include `--thumb-media-id <thumb_media_id>` only if available.
    - Direct content:
      `wxcli draft add --title "<title>" --content "<html>" --thumb-media-id <thumb_media_id>`
    - From pipeline:
@@ -85,6 +98,7 @@ account article (plain text or Markdown) and submit it as a draft.
 
 ## Failure Handling
 
-- If `thumb_media_id` is missing, request it explicitly.
+- If thumbnail upload fails, show the error and ask to retry or proceed without thumbnail.
+- If getting latest image fails, inform the user and proceed without thumb_media_id.
 - If the CLI conversion fails, show the error and ask to retry.
 - If `wxcli` fails, show the error output and ask whether to retry or adjust inputs.
