@@ -91,6 +91,8 @@ Add a draft:
 wxcli draft add --title "Hello" --content "<p>Hi</p>" --thumb-media-id MEDIA_ID
 ```
 
+Optional: comments are enabled by default. Disable with `--need-open-comment 0` (alias `--need_open_comment`). Require fans-only comments with `--only-fans-can-comment 1` (alias `--only_fans_can_comment`).
+
 Read HTML content from stdin:
 
 ```bash

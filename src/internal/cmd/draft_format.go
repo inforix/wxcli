@@ -43,6 +43,14 @@ func detectDraftFormat(content string) string {
 }
 
 func renderMarkdown(input string) (string, error) {
+	html, err := renderMarkdownBase(input)
+	if err != nil {
+		return "", err
+	}
+	return finalizeMarkdownHTML(html)
+}
+
+func renderMarkdownBase(input string) (string, error) {
 	html, err := markup.MarkdownToHTML(input)
 	if err != nil {
 		return "", err
@@ -52,14 +60,6 @@ func renderMarkdown(input string) (string, error) {
 		return "", err
 	}
 	html, err = markup.WrapHeadingContent(html)
-	if err != nil {
-		return "", err
-	}
-	html, err = markup.TightenListParagraphs(html)
-	if err != nil {
-		return "", err
-	}
-	html, err = markup.RemoveListBreaks(html)
 	if err != nil {
 		return "", err
 	}
@@ -79,11 +79,25 @@ func renderMarkdown(input string) (string, error) {
 	if err != nil {
 		return "", err
 	}
-	html, err = markup.StripNewlines(html)
+	return strings.TrimSpace(html), nil
+}
+
+func finalizeMarkdownHTML(html string) (string, error) {
+	out := html
+	var err error
+	out, err = markup.TightenListParagraphs(out)
 	if err != nil {
 		return "", err
 	}
-	return strings.TrimSpace(html), nil
+	out, err = markup.RemoveListBreaks(out)
+	if err != nil {
+		return "", err
+	}
+	out, err = markup.StripNewlines(out)
+	if err != nil {
+		return "", err
+	}
+	return strings.TrimSpace(out), nil
 }
 
 func inlineCSS(html, css string) (string, error) {

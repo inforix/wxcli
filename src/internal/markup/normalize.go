@@ -24,6 +24,9 @@ func TightenListParagraphs(html string) (string, error) {
 			s.Remove()
 			return
 		}
+		if li := s.Parent(); li != nil && li.Is("li") {
+			transferInheritableStyles(s, li)
+		}
 		_ = s.ReplaceWithHtml(inner)
 	})
 	body := doc.Find("body")

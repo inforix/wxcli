@@ -26,6 +26,7 @@ func InlineCSS(html, css string) (string, error) {
 	})
 	wrapper := parsed.Find("div#nice")
 	if wrapper.Length() > 0 {
+		propagateWrapperStyles(wrapper)
 		inner, err := wrapper.Html()
 		if err != nil {
 			return "", err
@@ -56,4 +57,22 @@ func shouldPreserveClass(sel *goquery.Selection) bool {
 		return true
 	}
 	return false
+}
+
+func propagateWrapperStyles(wrapper *goquery.Selection) {
+	if wrapper == nil {
+		return
+	}
+	style, ok := wrapper.Attr("style")
+	if !ok || strings.TrimSpace(style) == "" {
+		return
+	}
+	parsed := parseInlineStyle(style)
+	inherited := filterInheritableStyles(parsed)
+	if len(inherited) == 0 {
+		return
+	}
+	wrapper.Find("*").Each(func(_ int, sel *goquery.Selection) {
+		mergeInlineStyle(sel, inherited)
+	})
 }

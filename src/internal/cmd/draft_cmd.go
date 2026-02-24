@@ -11,17 +11,27 @@ import (
 
 	"wxcli/src/internal/auth"
 	"wxcli/src/internal/draft"
+	"wxcli/src/internal/markup"
 	"wxcli/src/internal/outfmt"
 	"wxcli/src/internal/secrets"
 	"wxcli/src/internal/ui"
 )
 
 type DraftAddCmd struct {
-	Title        string `name:"title" help:"Article title" required:""`
-	Content      string `name:"content" help:"Article content (HTML or Markdown); use '-' to read from stdin" required:""`
-	Format       string `name:"format" help:"Content format: html|markdown|auto" default:"auto"`
-	CSSPath      string `name:"css-path" help:"Path to CSS file (optional; inlines styles)"`
-	ThumbMediaID string `name:"thumb-media-id" help:"Thumb media ID" required:""`
+	Title              string `name:"title" help:"Article title" required:""`
+	Content            string `name:"content" help:"Article content (HTML or Markdown); use '-' to read from stdin" required:""`
+	Format             string `name:"format" help:"Content format: html|markdown|auto" default:"auto"`
+	CSSPath            string `name:"css-path" help:"Path to CSS file (optional; inlines styles)"`
+	NeedOpenComment    int    `name:"need-open-comment" aliases:"need_open_comment" help:"Open comment (0|1)" default:"1"`
+	OnlyFansCanComment int    `name:"only-fans-can-comment" aliases:"only_fans_can_comment" help:"Only fans can comment (0|1)" default:"0"`
+	ThumbMediaID       string `name:"thumb-media-id" help:"Thumb media ID" required:""`
+}
+
+func preprocessMarkdownContent(input string) string {
+	out := markup.StripMarkdownFrontMatter(input)
+	out = markup.StripLeadingMarkdownByline(out)
+	out = markup.StripLeadingMarkdownH1(out)
+	return out
 }
 
 func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
@@ -39,7 +49,8 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	}
 	rendered := content
 	if format == "markdown" {
-		rendered, err = renderMarkdown(content)
+		content = preprocessMarkdownContent(content)
+		rendered, err = renderMarkdownBase(content)
 		if err != nil {
 			return err
 		}
@@ -50,6 +61,16 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 			return err
 		}
 		rendered, err = inlineCSS(rendered, string(cssBytes))
+		if err != nil {
+			return err
+		}
+	}
+	if format == "markdown" {
+		rendered, err = markup.StripTitleHeadingHTML(rendered, c.Title)
+		if err != nil {
+			return err
+		}
+		rendered, err = finalizeMarkdownHTML(rendered)
 		if err != nil {
 			return err
 		}
@@ -77,9 +98,11 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	}
 	resp, err := client.Add(ctx, accessToken, draft.AddDraftRequest{
 		Articles: []draft.DraftArticle{{
-			Title:        c.Title,
-			Content:      rendered,
-			ThumbMediaID: c.ThumbMediaID,
+			Title:              c.Title,
+			Content:            rendered,
+			NeedOpenComment:    c.NeedOpenComment,
+			OnlyFansCanComment: c.OnlyFansCanComment,
+			ThumbMediaID:       c.ThumbMediaID,
 		}},
 	})
 	if err != nil {

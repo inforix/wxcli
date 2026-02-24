@@ -40,6 +40,26 @@ func TestTightenListParagraphs(t *testing.T) {
 	}
 }
 
+func TestTightenListParagraphsPreservesInlineStyles(t *testing.T) {
+	in := `<ul><li><p style="line-height: 2.5; color: #333; margin: 1em 0;">a</p></li></ul>`
+	out, err := TightenListParagraphs(in)
+	if err != nil {
+		t.Fatalf("tighten list: %v", err)
+	}
+	if strings.Contains(out, "<p") {
+		t.Fatalf("expected paragraph wrapper removed, got %q", out)
+	}
+	if !strings.Contains(out, "line-height: 2.5") {
+		t.Fatalf("expected line-height preserved, got %q", out)
+	}
+	if !strings.Contains(out, "color: #333") {
+		t.Fatalf("expected color preserved, got %q", out)
+	}
+	if strings.Contains(out, "margin:") {
+		t.Fatalf("expected non-inheritable margin not copied, got %q", out)
+	}
+}
+
 func TestRemoveListBreaks(t *testing.T) {
 	in := "<ul><li>a<br/>b</li></ul>"
 	out, err := RemoveListBreaks(in)
@@ -173,5 +193,57 @@ func TestStripNewlines(t *testing.T) {
 	}
 	if !strings.Contains(out2, "<br/>") {
 		t.Fatalf("expected <br/> in code block, got %q", out2)
+	}
+}
+
+func TestStripMarkdownFrontMatter(t *testing.T) {
+	in := "---\n" +
+		"title: Example\n" +
+		"author: WANG\n" +
+		"---\n" +
+		"\n" +
+		"# Heading\n\nBody"
+	out := StripMarkdownFrontMatter(in)
+	if strings.Contains(out, "author:") || strings.Contains(out, "title:") {
+		t.Fatalf("expected front matter removed, got %q", out)
+	}
+	if !strings.HasPrefix(out, "# Heading") {
+		t.Fatalf("expected content preserved, got %q", out)
+	}
+}
+
+func TestStripLeadingMarkdownByline(t *testing.T) {
+	in := "\n\n*作者：WANG*\n\n# Title\n"
+	out := StripLeadingMarkdownByline(in)
+	if strings.Contains(out, "作者") {
+		t.Fatalf("expected byline removed, got %q", out)
+	}
+	if !strings.Contains(out, "# Title") {
+		t.Fatalf("expected content preserved, got %q", out)
+	}
+}
+
+func TestStripLeadingMarkdownH1(t *testing.T) {
+	in := "\n\n# My Title\n\nBody\n"
+	out := StripLeadingMarkdownH1(in)
+	if strings.Contains(out, "# My Title") {
+		t.Fatalf("expected title removed, got %q", out)
+	}
+	if !strings.Contains(out, "Body") {
+		t.Fatalf("expected content preserved, got %q", out)
+	}
+}
+
+func TestStripTitleHeadingHTML(t *testing.T) {
+	in := "<h1>My Title</h1><p>Body</p>"
+	out, err := StripTitleHeadingHTML(in, "My Title")
+	if err != nil {
+		t.Fatalf("strip title: %v", err)
+	}
+	if strings.Contains(out, "<h1>") {
+		t.Fatalf("expected title removed, got %q", out)
+	}
+	if !strings.Contains(out, "<p>Body</p>") {
+		t.Fatalf("expected body preserved, got %q", out)
 	}
 }
