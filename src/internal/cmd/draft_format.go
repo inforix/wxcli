@@ -7,6 +7,7 @@ import (
 	"wxcli/src/internal/markup"
 )
 
+
 func normalizeDraftFormat(format, content string) (string, error) {
 	value := strings.ToLower(strings.TrimSpace(format))
 	if value == "" {
