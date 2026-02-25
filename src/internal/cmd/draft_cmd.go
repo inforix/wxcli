@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/99designs/keyring"
+	"github.com/inforix/wxcli/mdinline"
 
 	"wxcli/src/internal/auth"
 	"wxcli/src/internal/draft"
@@ -51,22 +52,19 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 	rendered := content
 	if format == "markdown" {
 		content = preprocessMarkdownContent(content)
-		rendered, err = renderMarkdownBase(content)
+		cssText := ""
+		if c.CSSPath != "" {
+			cssBytes, err := os.ReadFile(c.CSSPath)
+			if err != nil {
+				return err
+			}
+			cssText = string(cssBytes)
+		}
+		rendered, err = mdinline.RenderMarkdownWithInlineCSS(content, cssText, "screen")
 		if err != nil {
 			return err
 		}
-		if c.CSSPath == "" {
-			cssBytes, err := os.ReadFile("assets/style.css")
-			if err != nil {
-				return err
-			}
-			rendered, err = inlineCSS(rendered, string(cssBytes))
-			if err != nil {
-				return err
-			}
-		}
-	}
-	if c.CSSPath != "" {
+	} else if c.CSSPath != "" {
 		cssBytes, err := os.ReadFile(c.CSSPath)
 		if err != nil {
 			return err

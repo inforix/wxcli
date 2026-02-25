@@ -7,7 +7,6 @@ import (
 	"wxcli/src/internal/markup"
 )
 
-
 func normalizeDraftFormat(format, content string) (string, error) {
 	value := strings.ToLower(strings.TrimSpace(format))
 	if value == "" {
@@ -98,6 +97,7 @@ func finalizeMarkdownHTML(html string) (string, error) {
 	if err != nil {
 		return "", err
 	}
+	out = markup.UnescapeStyleEntities(out)
 	return strings.TrimSpace(out), nil
 }
 
