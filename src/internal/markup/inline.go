@@ -59,6 +59,7 @@ func shouldPreserveClass(sel *goquery.Selection) bool {
 	return false
 }
 
+
 func propagateWrapperStyles(wrapper *goquery.Selection) {
 	if wrapper == nil {
 		return

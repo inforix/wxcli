@@ -55,6 +55,16 @@ func (c *DraftAddCmd) Run(ctx context.Context, _ *RootFlags) error {
 		if err != nil {
 			return err
 		}
+		if c.CSSPath == "" {
+			cssBytes, err := os.ReadFile("assets/style.css")
+			if err != nil {
+				return err
+			}
+			rendered, err = inlineCSS(rendered, string(cssBytes))
+			if err != nil {
+				return err
+			}
+		}
 	}
 	if c.CSSPath != "" {
 		cssBytes, err := os.ReadFile(c.CSSPath)
